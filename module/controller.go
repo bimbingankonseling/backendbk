@@ -64,7 +64,7 @@ func InsertManyDocsRegistrasi(db *mongo.Database, col string, registrasi []model
 
 func InsertManyDocsReservasi(db *mongo.Database, col string, reservasi []model.Reservasi) (insertedIDs []primitive.ObjectID, err error) {
 	var interfaces []interface{}
-	for _, pengeluaran := range reservasi {
+	for _, reservasi := range reservasi {
 		interfaces = append(interfaces, reservasi)
 	}
 	result, err := db.Collection(col).InsertMany(context.Background(), interfaces)
@@ -107,15 +107,11 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 
 // SIGN IN
 func SignIn(db *mongo.Database, col string, insertedDoc model.User) (user model.User, Status bool, err error) {
-	if insertedDoc.Email == "" || insertedDoc.Password == "" {
+	if insertedDoc.Username == "" || insertedDoc.Password == "" {
 		return user, false, fmt.Errorf("mohon untuk melengkapi data")
 	}
-	if err = checkmail.ValidateFormat(insertedDoc.Email); err != nil {
-		return user, false, fmt.Errorf("email tidak valid")
-	}
-	existsDoc, err := GetUserFromEmail(insertedDoc.Email, db)
-	if err != nil {
-		return
+	if err = checkmail.ValidateFormat(insertedDoc.Username); err != nil {
+		return user, false, fmt.Errorf("Username tidak valid")
 	}
 	if !CheckPasswordHash(insertedDoc.Password, existsDoc.Password) {
 		return user, false, fmt.Errorf("password salah")
@@ -127,7 +123,7 @@ func SignIn(db *mongo.Database, col string, insertedDoc model.User) (user model.
 // REGISTRASI
 
 func InsertRegistrasi(db *mongo.Database, col string, nama_lengkap string, no_telp string, ttl string, nim string, alamat string) (insertedID primitive.ObjectID, err error) {
-	pemasukan := bson.M{
+	registrasi := bson.M{
 		"nama_lengkap"	: nama_lengkap,
 		"no_telp"		: no_telp,
 		"ttl"			: ttl,
