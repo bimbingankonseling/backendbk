@@ -6,7 +6,7 @@ import (
 
 	model "github.com/bimbingankonseling/backendbk/model"
 	module "github.com/bimbingankonseling/backendbk/module"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var db = module.MongoConnect("MONGOSTRING", "konseling")

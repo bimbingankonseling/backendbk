@@ -1,10 +1,11 @@
 module github.com/bimbingankonseling/backendbk
 
-go 1.20
+go 1.21
+
+toolchain go1.21.3
 
 require (
 	github.com/aiteung/atdb v0.1.3
-	github.com/badoux/checkmail v1.2.1
 	github.com/whatsauth/watoken v0.1.3
 	go.mongodb.org/mongo-driver v1.13.0
 	golang.org/x/crypto v0.16.0
