@@ -12,188 +12,60 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GCFHandlerSignup(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var Response model.Credential
-	Response.Status = false
-	var dataUser model.User
-	err := json.NewDecoder(r.Body).Decode(&dataUser)
-	if err != nil {
-		Response.Message = "error parsing application/json: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-	err = SignUp(conn, collectionname, dataUser)
-	if err != nil {
-		Response.Message = err.Error()
-		return GCFReturnStruct(Response)
-	}
-	Response.Status = true
-	Response.Message = "Halo " + dataUser.Username
-	return GCFReturnStruct(Response)
-}
+// func GCFHandlerSignup(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+// 	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
+// 	var Response model.Credential
+// 	Response.Status = false
+// 	var dataUser model.User
+// 	err := json.NewDecoder(r.Body).Decode(&dataUser)
+// 	if err != nil {
+// 		Response.Message = "error parsing application/json: " + err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	err = SignUp(conn, collectionname, dataUser)
+// 	if err != nil {
+// 		Response.Message = err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	Response.Status = true
+// 	Response.Message = "Halo " + dataUser.Username
+// 	return GCFReturnStruct(Response)
+// }
 
-func GCFHandlerSignin(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var Response model.Credential
-	Response.Status = false
-	var dataUser model.User
-	err := json.NewDecoder(r.Body).Decode(&dataUser)
-	if err != nil {
-		Response.Message = "error parsing application/json: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-	user, status1, err := SignIn(conn, collectionname, dataUser)
-	if err != nil {
-		Response.Message = err.Error()
-		return GCFReturnStruct(Response)
-	}
-	Response.Status = true
-	// Response.Message = "Halo " + dataUser.Name
-	tokenstring, err := watoken.Encode(dataUser.Email, os.Getenv(PASETOPRIVATEKEYENV))
-	if err != nil {
-		Response.Message = "Gagal Encode Token : " + err.Error()
-	} else {
-		Response.Message = "Selamat Datang " + user.Email + " di KeeKonseling" + strconv.FormatBool(status1)
-		Response.Token = tokenstring
-	}
-	return GCFReturnStruct(Response)
-}
-
-func GCFGetUserFromID(MONGOCONNSTRINGENV, PASETOPUBLICKEYENV, dbname, collectionname string, r *http.Request) string {
-	var Response model.Credential
-	Response.Status = false
-	db := MongoConnect(MONGOCONNSTRINGENV, dbname)
-
-	token := r.Header.Get("Authorization")
-	token = strings.TrimPrefix(token, "Bearer ")
-
-	profile, err := watoken.Decode(os.Getenv(PASETOPUBLICKEYENV), token)
-	if err != nil {
-		Response.Message = "Error decoding token: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-
-	userID, err := primitive.ObjectIDFromHex(profile.Id)
-	if err != nil {
-		Response.Message = "Invalid user ID in token"
-		return GCFReturnStruct(Response)
-	}
-
-	user, err := GetUserFromID(userID, db)
-	if err != nil {
-		Response.Message = "Error fetching user: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-
-	return GCFReturnStruct(user)
-}
-
-// SUMBER
-func GCFHandlerInsertSumber(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	var Response model.SumberResponse
-	Response.Status = false
-	mconn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var dataSumber model.Sumber
-
-	token := r.Header.Get("Authorization")
-	token = strings.TrimPrefix(token, "Bearer ")
-	if token == "" {
-		Response.Message = "error parsing application/json1:"
-		return GCFReturnStruct(Response)
-	}
-
-	_, err := watoken.Decode(os.Getenv(PASETOPUBLICKEY), token)
-	if err != nil {
-		Response.Message = "error parsing application/json2:" + err.Error() + ";" + token
-		return GCFReturnStruct(Response)
-	}
-
-	err = json.NewDecoder(r.Body).Decode(&dataSumber)
-	if err != nil {
-		Response.Message = "error parsing application/json3: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-
-	_, err = InsertSumber(mconn, collectionname, dataSumber)
-	if err != nil {
-		Response.Message = "error inserting Sumber: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-
-	Response.Status = true
-	Response.Message = "success"
-	return GCFReturnStruct(Response)
-}
-
-func GCFHandlerGetSumberFromID(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var Response model.SumberResponse
-	Response.Status = false
-	var dataUser model.User
-
-	// get token from header
-	token := r.Header.Get("Authorization")
-	token = strings.TrimPrefix(token, "Bearer ")
-	if token == "" {
-		Response.Message = "error parsing application/json1:" + token
-		return GCFReturnStruct(Response)
-	}
-
-	// decode token
-	_, err1 := watoken.Decode(os.Getenv(PASETOPUBLICKEY), token)
-
-	if err1 != nil {
-		Response.Message = "error parsing application/json2: " + err1.Error() + ";" + token
-		return GCFReturnStruct(Response)
-	}
-	sumber, err := GetSumberFromID(dataUser.ID, conn)
-	if err != nil {
-		Response.Message = "error parsing application/json4: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-	Response.Status = true
-	Response.Message = "Selamat Datang " + dataUser.Email
-	Response.Data = []model.Sumber{sumber}
-	return GCFReturnStruct(Response)
-}
-
-func GCFHandlerGetAllSumber(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var Response model.SumberResponse
-	Response.Status = false
-	// get token from header
-	token := r.Header.Get("Authorization")
-	token = strings.TrimPrefix(token, "Bearer ")
-	if token == "" {
-		Response.Message = "error parsing application/json1:"
-		return GCFReturnStruct(Response)
-	}
-
-	// decode token
-	_, err1 := watoken.Decode(os.Getenv(PASETOPUBLICKEY), token)
-
-	if err1 != nil {
-		Response.Message = "error parsing application/json2: " + err1.Error() + ";" + token
-		return GCFReturnStruct(Response)
-	}
-	sumber, err := GetAllSumber(conn)
-	if err != nil {
-		Response.Message = "error parsing application/json4: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-	Response.Status = true
-	Response.Message = "Berhasil mendapatkan semua sumber"
-	Response.Data = sumber
-	return GCFReturnStruct(Response)
-}
+// func GCFHandlerSignin(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+// 	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
+// 	var Response model.Credential
+// 	Response.Status = false
+// 	var dataUser model.User
+// 	err := json.NewDecoder(r.Body).Decode(&dataUser)
+// 	if err != nil {
+// 		Response.Message = "error parsing application/json: " + err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	user, status1, err := SignIn(conn, collectionname, dataUser)
+// 	if err != nil {
+// 		Response.Message = err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	Response.Status = true
+// 	// Response.Message = "Halo " + dataUser.Name
+// 	tokenstring, err := watoken.Encode(dataUser.Email, os.Getenv(PASETOPRIVATEKEYENV))
+// 	if err != nil {
+// 		Response.Message = "Gagal Encode Token : " + err.Error()
+// 	} else {
+// 		Response.Message = "Selamat Datang " + user.Email + " di KeeKonseling" + strconv.FormatBool(status1)
+// 		Response.Token = tokenstring
+// 	}
+// 	return GCFReturnStruct(Response)
+// }
 
 // PEMASUKAN
 
-func GCFHandlerInsertPemasukan(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	var Response model.PemasukanResponse
+func GCFHandlerInsertReservasi(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+	var Response model.ReservasiResponse
 	Response.Status = false
 	mconn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var dataPemasukan model.Pemasukan
+	var dataReservasi model.Reservasi
 
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
@@ -208,20 +80,20 @@ func GCFHandlerInsertPemasukan(PASETOPUBLICKEY, MONGOCONNSTRINGENV, dbname, coll
 		return GCFReturnStruct(Response)
 	}
 
-	err = json.NewDecoder(r.Body).Decode(&dataPemasukan)
+	err = json.NewDecoder(r.Body).Decode(&dataReservasi)
 	if err != nil {
 		Response.Message = "error parsing application/json3: " + err.Error()
 		return GCFReturnStruct(Response)
 	}
 
-	_, err = InsertPemasukan(mconn, collectionname, dataPemasukan.Tanggal_masuk, dataPemasukan.Jumlah_masuk, dataPemasukan.ID_sumber, dataPemasukan.Deskripsi, dataPemasukan.ID_user)
+	_, err = InsertReservasi(mconn, collectionname, dataReservasi.Nama, dataReservasi.No_telp, dataReservasi.TTL, dataReservasi.Status, dataReservasi.Keluhan)
 	if err != nil {
-		Response.Message = "error inserting Pemasukan: " + err.Error()
+		Response.Message = "error inserting Reservasi: " + err.Error()
 		return GCFReturnStruct(Response)
 	}
 
 	Response.Status = true
-	Response.Message = "Insert Pemasukan success"
+	Response.Message = "Insert Reservasi success"
 	return GCFReturnStruct(Response)
 }
 

@@ -1,4 +1,4 @@
-package billblis
+package konseling
 
 import (
 	"encoding/json"

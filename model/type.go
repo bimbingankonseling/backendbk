@@ -11,6 +11,7 @@ type User struct {
 }
 
 type Registrasi struct {
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	Nama_lengkap    string `bson:"nama_lengkap,omitempty" json:"nama_lengkap,omitempty"`
 	No_telp 		string `bson:"no_telp,omitempty" json:"no_telp,omitempty"`
 	TTL 			string `bson:"ttl,omitempty" json:"ttl,omitempty"`
@@ -30,4 +31,10 @@ type Reservasi struct {
 type Response struct {
 	Status  bool   `json:"status" bson:"status"`
 	Message string `json:"message,omitempty" bson:"message,omitempty"`
+}
+
+type ReservasiResponse struct {
+	Status  bool        `json:"status" bson:"status"`
+	Message string      `json:"message,omitempty" bson:"message,omitempty"`
+	Data    []Reservasi `json:"data" bson:"data"`
 }

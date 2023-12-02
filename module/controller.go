@@ -105,20 +105,20 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 	return nil
 }
 
-// SIGN IN
-func SignIn(db *mongo.Database, col string, insertedDoc model.User) (user model.User, Status bool, err error) {
-	if insertedDoc.Username == "" || insertedDoc.Password == "" {
-		return user, false, fmt.Errorf("mohon untuk melengkapi data")
-	}
-	if err = checkmail.ValidateFormat(insertedDoc.Username); err != nil {
-		return user, false, fmt.Errorf("Username tidak valid")
-	}
-	if !CheckPasswordHash(insertedDoc.Password, existsDoc.Password) {
-		return user, false, fmt.Errorf("password salah")
-	}
+// // SIGN IN
+// func SignIn(db *mongo.Database, col string, insertedDoc model.User) (user model.User, Status bool, err error) {
+// 	if insertedDoc.Username == "" || insertedDoc.Password == "" {
+// 		return user, false, fmt.Errorf("mohon untuk melengkapi data")
+// 	}
+// 	if err = checkmail.ValidateFormat(insertedDoc.Username); err != nil {
+// 		return user, false, fmt.Errorf("Username tidak valid")
+// 	}
+// 	if !CheckPasswordHash(insertedDoc.Password, existsDoc.Password) {
+// 		return user, false, fmt.Errorf("password salah")
+// 	}
 
-	return existsDoc, true, nil
-}
+// 	return existsDoc, true, nil
+// }
 
 // REGISTRASI
 
