@@ -22,7 +22,7 @@ func TestInsertReservasi(t *testing.T) {
 	doc.Status = "mahasiswa"
 	doc.Keluhan = "pusing"
 
-	hasil, err := module.InsertReservasi(db, "pemasukan", doc.Nama, doc.No_telp, doc.TTL, doc.Status, doc.Keluhan)
+	hasil, err := module.InsertReservasi(db, "reservasi", doc.Nama, doc.No_telp, doc.TTL, doc.Status, doc.Keluhan)
 	if err != nil {
 		t.Errorf("Error inserting document: %v", err)
 	} else {
