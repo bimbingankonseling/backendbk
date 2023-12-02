@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
+	// "strings"
 
-	"github.com/badoux/checkmail"
+	// "github.com/badoux/checkmail"
 	"github.com/bimbingankonseling/backendbk/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
