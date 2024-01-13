@@ -10,15 +10,6 @@ type User struct {
 	Password   string             `bson:"password" json:"password"`
 }
 
-type Registrasi struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	Nama_lengkap    string `bson:"nama_lengkap,omitempty" json:"nama_lengkap,omitempty"`
-	No_telp 		string `bson:"no_telp,omitempty" json:"no_telp,omitempty"`
-	TTL 			string `bson:"ttl,omitempty" json:"ttl,omitempty"`
-	NIM 			string `bson:"nim,omitempty" json:"nim,omitempty"`
-	Alamat 			string `bson:"alamat,omitempty" json:"alamat,omitempty"`
-}
-
 type Reservasi struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	Nama 		  string             `bson:"nama,omitempty" json:"nama,omitempty"`
